@@ -1264,7 +1264,7 @@ Morgan 的安装方式与使用 _npm install_ 命令的所有其他库一样。 
 这个练习可以通过几种不同的方式来完成。其中一种可能的解决方案利用了如下两种技巧:
 
 - [创建新的令牌](https://github.com/expressjs/morgan#creating-new-tokens)
-- [JSON.stringify](https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/JSON.stringify)
+- [JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)
 
 </div>
 
