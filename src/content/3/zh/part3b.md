@@ -183,7 +183,7 @@ node_modules
 部署前端的一个选择是将生产构建( <i>build</i> 目录)复制到后端仓库的根目录，并配置后端以显示前端的 <i>main page</i> (文件 <i>build/index.html</i>)作为其主页。
 
 <!-- We begin by copying the production build of the frontend to the root of the backend. With a Mac or Linux  the copying can be done from the frontend directory with the command -->
-我们从将前端的生产构建复制到后端的根开始。 使用一台Mac 或 Linux 计算机，可以通过命令从前端目录进行复制
+我们从将前端的生产构建复制到后端的根目录。 使用一台Mac 或 Linux 计算机，可以通过命令从前端目录进行复制
 
 ```bash
 cp -r build ../../../osa3/notes-backend
