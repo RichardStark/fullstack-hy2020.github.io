@@ -603,7 +603,7 @@ const id = request.params.id
 现在使用熟悉的 _find_ 方法查找与 id 参数匹配的的便笺。 然后，便笺被返回给request的发送者。
 
 <!-- When we test our application by going to <http://localhost:3001/api/notes/1> in our browser, we notice that it does not appear to work, as the browser displays an empty page. This comes as no surprise to us as software developers, and it's time to debug. -->
-当我们通过在浏览器中键入 http://localhost:3001/api/notes/1来测试我们的应用时，我们注意到它似乎不能正常工作，因为浏览器显示一个空白页面。 这对于我们软件开发人员来说并不奇怪，现在是调试的时候了。
+当我们通过在浏览器中键入 http://localhost:3001/api/notes/1 来测试我们的应用时，我们注意到它似乎不能正常工作，因为浏览器显示一个空白页面。 这对于我们软件开发人员来说并不奇怪，现在是调试的时候了。
 
 <!-- Adding _console.log_ commands into our code is a time-proven trick: -->
 在我们的代码中添加  _console.log_ 命令是一个久经验证的技巧:
