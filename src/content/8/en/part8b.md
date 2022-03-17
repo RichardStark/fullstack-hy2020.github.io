@@ -9,11 +9,11 @@ lang: en
 
 We will next implement a React app which uses the GraphQL server we created.
 
-The current code of the server can be found on [Github](https://github.com/fullstack-hy2020/graphql-phonebook-backend/tree/part8-3), branch <i>part8-3</i>.
+The current code of the server can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-backend/tree/part8-3), branch <i>part8-3</i>.
 
 In theory, we could use GraphQL with HTTP POST requests. The following shows an example of this with Postman:
 
-![](../../images/8/8.png)
+![](../../images/8/8x.png)
 
 The communication works by sending HTTP POST requests to http://localhost:4000/graphql. The query itself is a string sent as the value of the key <i>query</i>.
 
@@ -32,7 +32,6 @@ npm install @apollo/client graphql
 We'll start with the following code for our application:
 
 ```js
-import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
 
@@ -69,7 +68,6 @@ ReactDOM.render(<App />, document.getElementById('root'))
 
 The beginning of the code creates a new [client](https://www.apollographql.com/docs/react/get-started/#create-a-client) object, which is then used to send a query to the server: 
 
-
 ```js
 client.query({ query })
   .then((response) => {
@@ -84,7 +82,6 @@ The server's response is printed to the console:
 The application can communicate with a GraphQL server using the _client_ object. The client can be made accessible for all components of the application by wrapping the <i>App</i> component with [ApolloProvider](https://www.apollographql.com/docs/react/get-started/#connect-your-client-to-react).
 
 ```js
-import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
 
@@ -117,7 +114,6 @@ Currently, the use of the hook function [useQuery](https://www.apollographql.com
 The query is made by the <i>App</i> component, the code of which is as follows:
 
 ```js
-import React from 'react'
 import { gql, useQuery } from '@apollo/client'
 
 const ALL_PERSONS = gql`
@@ -166,7 +162,6 @@ When a response is received, the result of the <i>allPersons</i> query can be fo
 </div>
 ```
 
-<!-- Eriytetään henkilöiden näyttäminen omaan komponenttiin -->
 Let's separate displaying the list of persons into its own component:
 
 ```js
@@ -184,7 +179,6 @@ const Persons = ({ persons }) => {
 }
 ```
 
-<!-- Komponentti _App_ siis hoitaa edelleen kyselyn ja välittää tuloksen uuden komponentin renderöitäväksi: -->
 The _App_ component still makes the query, and passes the result to the new component to be rendered:
 
 ```js
@@ -196,7 +190,7 @@ const App = () => {
   }
 
   return (
-    <Persons persons = {result.data.allPersons}/>
+    <Persons persons={result.data.allPersons}/>
   )
 }
 ```
@@ -222,7 +216,6 @@ When we do queries programmatically, we must be able to give them parameters dyn
 
 GraphQL [variables](https://graphql.org/learn/queries/#variables) are well-suited for this. To be able to use variables, we must also name our queries. 
 
-<!-- Sopiva muoto kyselylle on seuraava: -->
 A good format for the query is this:
 
 ```js
@@ -240,23 +233,27 @@ query findPersonByName($nameToSearch: String!) {
 
 The name of the query is <i>findPersonByName</i>, and it is given a string <i>$nameToSearch</i> as a parameter. 
 
-It is also possible to do queries with parameters with the GraphQL Playground. The parameters are given in <i>Query variables</i>:
+It is also possible to do queries with parameters with the Apollo Explorer. The parameters are given in <i>Variables</i>:
 
-![](../../images/8/10.png)
+![](../../images/8/10x.png)
 
-The _useQuery_ hook is well-suited for situations where the query is done when the component is rendered. 
-However, we now want to make the query only when a user wants to see the details of a specific person, so the query is done only [as required](https://www.apollographql.com/docs/react/data/queries/#executing-queries-manually).
+The _useQuery_ hook is well-suited for situations where the query is done when the component is rendered.  However, we now want to make the query only when a user wants to see the details of a specific person, so the query is done only [as required](https://www.apollographql.com/docs/react/data/queries/#executing-queries-manually).
 
-For this situation, the hook function [useLazyQuery](https://www.apollographql.com/docs/react/api/react/hooks/#uselazyquery) is a good choice. 
-The <i>Persons</i> component becomes:
+One possibility for this kind of situatuins is the hook function [useLazyQuery](https://www.apollographql.com/docs/react/api/react/hooks/#uselazyquery) that would make it possible to define a query which is executed <i>when</i> the user wants to see the detailed information of a person.
+ 
+However, in our case we can stick to _useQuery_ and use the option [skip](https://www.apollographql.com/docs/react/data/queries/#skip), which makes it possible to do the query only if a set condition is true.
+
+The olution is as follows:
 
 ```js
-// highlight-start
+import { useState } from 'react'
+import { gql, useQuery } from '@apollo/client'
+
 const FIND_PERSON = gql`
   query findPersonByName($nameToSearch: String!) {
     findPerson(name: $nameToSearch) {
       name
-      phone 
+      phone
       id
       address {
         street
@@ -265,54 +262,51 @@ const FIND_PERSON = gql`
     }
   }
 `
-// highlight-end
+
+const Person = ({ person, onClose }) => {
+  return (
+    <div>
+      <h2>{person.name}</h2>
+      <div>
+        {person.address.street} {person.address.city}
+      </div>
+      <div>{person.phone}</div>
+      <button onClick={onClose}>close</button>
+    </div>
+  )
+}
 
 const Persons = ({ persons }) => {
   // highlight-start
-  const [getPerson, result] = useLazyQuery(FIND_PERSON) 
-  const [person, setPerson] = useState(null)
-// highlight-end
-
-// highlight-start
-  const showPerson = (name) => {
-    getPerson({ variables: { nameToSearch: name } })
-  }
+  const [nameToSearch, setNameToSearch] = useState(null)
+  const result = useQuery(FIND_PERSON, {
+    variables: { nameToSearch },
+    skip: !nameToSearch,
+  })
   // highlight-end
 
-// highlight-start
-  useEffect(() => {
-    if (result.data) {
-      setPerson(result.data.findPerson)
-    }
-  }, [result])
-  // highlight-end
-
-// highlight-start
-  if (person) {
-    return(
-      <div>
-        <h2>{person.name}</h2>
-        <div>{person.address.street} {person.address.city}</div>
-        <div>{person.phone}</div>
-        <button onClick={() => setPerson(null)}>close</button>
-      </div>
+  // highlight-start
+  if (nameToSearch && result.data) {
+    return (
+      <Person
+        person={result.data.findPerson}
+        onClose={() => setNameToSearch(null)}
+      />
     )
   }
   // highlight-end
-  
+
   return (
     <div>
       <h2>Persons</h2>
-      {persons.map(p =>
+      {persons.map((p) => (
         <div key={p.name}>
-          {p.name} {p.phone}
-          // highlight-start
-          <button onClick={() => showPerson(p.name)} >
-            show address
-          </button> 
-          // highlight-end
-        </div>  
-      )}
+          {p.name} {p.phone} 
+          <button onClick={() => setNameToSearch(p.name)}> // highlight-line
+            show address // highlight-line
+          </button> // highlight-line
+        </div>
+      ))}
     </div>
   )
 }
@@ -320,49 +314,47 @@ const Persons = ({ persons }) => {
 export default Persons
 ```
 
-<!-- Koodi on kasvanut paljon, ja kaikki lisäykset eivät ole täysin ilmeisiä. -->
 The code has changed quite a lot, and all of the changes are not completely apparent. 
 
-When a person's "show address" button is clicked, its event handler 
-_showPerson_ is executed, and makes a GraphQL query to fetch the person's details: 
+When the button <i>show address</i> of a person is pressed, the name of the person is set to state <i>nameToSearch</i>:
 
 ```js
-const [getPerson, result] = useLazyQuery(FIND_PERSON) 
+<button onClick={() => setNameToSearch(p.name)}>
+  show address
+</button>
+```
 
-// ...
+This causes the component to re-render itsef. On render the query <i>FIND_PERSON</i> that fetches the detailed information of a user is executed <i>if the variable nameToSearch</i> has a value:
 
-const showPerson = (name) => {
-  getPerson({ variables: { nameToSearch: name } })
+```js
+const result = useQuery(FIND_PERSON, {
+  variables: { nameToSearch },
+  skip: !nameToSearch, // highlight-line
+})
+```
+
+When user is not interested in seeing the detailed info of any person, the state variable <i>nameToSearch</i> is null and the query is not executed.
+
+If the state <i>nameToSearch</i> has a value and the query result is ready, the component <i>Person</i> renders the detailed info of a person:
+
+```js
+if (nameToSearch && result.data) {
+  return (
+    <Person
+      person={result.data.findPerson}
+      onClose={() => setNameToSearch(null)}
+    />
+  )
 }
 ```
 
-<!-- Kyselyn muuttujalle _nameToSearch_ määritellään arvo kutsuttaessa. -->
-The query's _nameToSearch_ variable receives a value when the query is run. 
-
-The query response is saved to the variable _result_, and its value is saved to the component's state _person_ in the _useEffect_ hook. 
-
-```js
-useEffect(() => {
-  if (result.data) {
-    setPerson(result.data.findPerson)
-  }
-}, [result])
-```
-
-The hook's second parameter is _result_, so the function given to the hook as its second parameter is executed <i>every time the query fetches the details of a different person</i>. 
-Without handling the update in a controlled way in a hook, returning from a single person view to an all-persons view would cause problems. 
-
-If the state _person_ has a value, instead of showing a list of all persons, only the details of one person are shown. 
+A single person view looks like this:
 
 ![](../../images/8/11.png)
 
+When a user wants to return to the persons list, the _nameToSearch_ state is set to _null_.
 
-<!-- Yksittäisen henkilön näkymästä palataan kaikkien henkilöiden näkymään sijoittamalla tilan muuttujan _person_ arvoksi _null_. -->
-When a user wants to return to the persons list, the _person_ state is set to _null_.
-
-The solution is not the neatest possible, but it is good enough for us. 
-
-The current code of the application can be found on [Github](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-1) branch <i>part8-1</i>.
+The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-1) branch <i>part8-1</i>.
 
 ### Cache
 
@@ -370,15 +362,15 @@ When we do multiple queries, for example with the address details of Arto Hellas
 
 ![](../../images/8/12.png)
 
-Apollo client saves the responses of queries to [cache](https://www.apollographql.com/docs/react/caching/cache-configuration/). To optimize performance if the response to a query is already in the cache, the query is not sent to the server at all. 
-
-It is possible to install [Apollo Client devtools](https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm/related) to Chrome to view the state of the cache. 
-
-![](../../images/8/13a.png)
+Apollo client saves the responses of queries to [cache](https://www.apollographql.com/docs/react/caching/overview/). To optimize performance if the response to a query is already in the cache, the query is not sent to the server at all. 
 
 
-Data in the cache is organized by query. Because <i>Person</i> objects have an identifying field <i>id</i> which is type <i>ID</i>, if the same object is returned by multiple queries, Apollo is able to combine them into one. 
-Because of this, doing <i>findPerson</i> queries for the address details of Arto Hellas has updated the address details also for the query <i>allPersons</i>.
+![](../../images/8/13x.png)
+
+Cache shows the detailed info of Arto Hellas after the query <i>findPerson</i> jälkeen:
+
+![](../../images/8/13z.png)
+
 ### Doing mutations
 
 Let's implement functionality for adding new persons. 
@@ -408,11 +400,10 @@ mutation createPerson($name: String!, $street: String!, $city: String!, $phone: 
 
 The hook function [useMutation](https://www.apollographql.com/docs/react/api/react/hooks/#usemutation) provides the functionality for making mutations. 
 
-<!-- Tehdään sovellukseen uusi komponentti uuden henkilön lisämiseen: -->
 Let's create a new component for adding a new person to the directory:
 
 ```js
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { gql, useMutation } from '@apollo/client'
 
 const CREATE_PERSON = gql`
@@ -525,7 +516,7 @@ The solution is simple, and every time a user adds a new person, it appears imme
 
 The bad side of the solution is all the pointless web traffic. 
 
-Another easy way to keep the cache in sync is to use the _useMutation_ hook's [refetchQueries](https://www.apollographql.com/docs/react/api/react/hooks/#params-2) parameter to define that the query fetching all persons is done again whenever a new person is created. 
+Another easy way to keep the cache in sync is to use the _useMutation_ hook's [refetchQueries](https://www.apollographql.com/docs/react/data/refetching/) parameter to define that the query fetching all persons is done again whenever a new person is created. 
 
 ```js
 const ALL_PERSONS = gql`
@@ -550,7 +541,6 @@ The pros and cons of this solution are almost opposite of the previous one's. Th
 
 There are other ways to update the cache. More about those later in this part. 
 
-<!-- Sovellukseen on tällä hetkellä määritelty kyselyjä komponenttien koodin sekaan. Eriytetään kyselyjen määrittely omaan tiedostoonsa <i>queries.js</i>: -->
 At the moment, queries and components are defined in the same place in our code. 
 Let's separate the query definitions into their own file <i>queries.js</i>:
 
@@ -575,7 +565,6 @@ export const CREATE_PERSON = gql`
 `
 ```
 
-<!-- Jokainen komponentti importtaa tarvitsemansa kyselyt: -->
 Each component then imports the queries it needs:
 
 ```js 
@@ -587,19 +576,16 @@ const App = () => {
 }
 ```
 
-The current code of the application can be found on [Github](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-2) branch <i>part8-2</i>.
+The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-2) branch <i>part8-2</i>.
 
-#### Handling mutation errors
+### Handling mutation errors
 
-<!-- Jos yritämme luoda epävalidia henkilöä, seurauksena on poikkeus ja koko sovellus hajoaa -->
-Trying to create a person with invalid data causes an error, and the whole application breaks:
+Trying to create a person with invalid data causes an error:
 
-![](../../images/8/14ea.png)
+![](../../images/8/14x.png)
 
-<!-- Poikkeus on syytä käsitellä. _useMutation_-hookin [option](https://www.apollographql.com/docs/react/api/react/hooks/#params-2) _onError_ avulla on mahdollista rekisteröidä mutaatioille virheenkäsittelijäfunktio. -->
 We should handle the exception. We can register an error handler function to the mutation using the _useMutation_ hook's _onError_ [option](https://www.apollographql.com/docs/react/api/react/hooks/#params-2).
 
-<!-- Rekisteröidään mutaatiolle virheidenkäsittelijä, joka asettaa virheestä kertovan viestin propsina saaman funktion _setError_ avulla: -->
 Let's register the mutation with an error handler which uses the _setError_
 function it receives as a parameter to set an error message:
 
@@ -669,7 +655,7 @@ Now the user is informed about an error with a simple notification.
 
 ![](../../images/8/15.png)
 
-The current code of the application can be found on [Github](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-3) branch <i>part8-3</i>.
+The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-3) branch <i>part8-3</i>.
 
 ### Updating a phone number
 
@@ -697,7 +683,7 @@ The <i>PhoneForm</i> component responsible for the change is straightforward. Th
 Interesting lines on the code have been highlighted.
 
 ```js
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useMutation } from '@apollo/client'
 
 import { EDIT_NUMBER } from '../queries'
@@ -751,23 +737,19 @@ It looks bleak, but it works:
 
 ![](../../images/8/22a.png)
 
-<!-- Kun numero muutetaan, päivittyy se hieman yllättäen automaattisesti komponentin <i>Persons</i> renderöimään nimien ja numeroiden listaan. Tämä johtuu siitä, että koska henkilöillä on identifioiva, tyyppiä <i>ID</i> oleva kenttä, päivittyy henkilö välimuistissa uusilla tiedoilla päivitysoperaation yhteydessä.  -->
 Surprisingly, when a person's number is changed, the new number automatically appears on the list of persons rendered by the <i>Persons</i> component. 
 This happens because each person has an identifying field of type <i>ID</i>, so the person's details saved to the cache update automatically when they are changed with the mutation. 
 
-The current code of the application can be found on [Github](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-4) branch <i>part8-4</i>.
+The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-4) branch <i>part8-4</i>.
 
-<!-- Sovelluksessa on  vielä pieni ongelma. Jos yritämme vaihtaa olemattomaan nimeen liittyvän puhelinnumeron, ei mitään näytä tapahtuvan. Syynä tälle on se, että jos nimeä vastaavaa henkilöä ei löydy, vastataan kyselyyn <i>null</i>: -->
 Our application still has one small flaw. If we try to change the phone number for a name which does not exist, nothing seems to happen. 
 This happens because if a person with the given name cannot be found, 
 the mutation response is <i>null</i>:
 
 ![](../../images/8/23ea.png)
 
-<!-- Koska kyseessä ei ole GraphQL:n kannalta virhetilanne, ei _onError_-virheenkäsittelijän rekisteröimisestä tässä tilanteessa hyötyä. -->
 For GraphQL, this is not an error, so registering an _onError_ error handler is not useful. 
 
-<!-- Voimme generoida virheilmoituksen _useMutation_-hookin toisena parametrina palauttaman mutaation tuloksen kertovan olion _result_ avulla. -->
 We can use the _result_ field returned by the _useMutation_ hook as its second parameter to generate an error message. 
 
 ```js 
@@ -794,17 +776,14 @@ const PhoneForm = ({ setError }) => {
 }
 ```
 
-<!-- Jos henkilöä ei löytynt, eli kyselyn tulos _result.data.editNumber_ on _null_, asettaa komponentti propseina saamansa callback-funktion avulla sopivan virheilmoituksen. Virheilmoituksen asettamista kontrolloidaan jälleen useEffect-hookin avulla, eli virheviesti halutaan asetaa ainoastaan jos mutaation tulos _result.data_ muuttuu. -->
 If a person cannot be found, or the _result.data.editNumber_ is _null_, the component uses the callback function it received as props to set a suitable error message. 
 We want to set the error message only when the result of the mutation 
 _result.data_ changes, so we use the useEffect hook to control setting the error message. 
 
-<!-- useEffect aiheuttaa ESLint-virheilmoituksen: -->
 Using useEffect causes an ESLint warning:
 
-![](../../images/8/41ea.png)
+![](../../images/8/41x.png)
 
-<!-- Varoitus on aiheeton, ja pääsemme helpoimmalla ignoroimalla ESLint-säännön riviltä: -->
 The warning is pointless, and the easiest solution is to ignore the ESLint rule on the line:
 
 ```js
@@ -817,7 +796,6 @@ useEffect(() => {
 // highlight-end
 ```
 
-<!-- Voisimme yrittää päästä varoituksesta eroon lisäämällä funktion _notify_ useEffectin toisena parametrina olevaan taulukkoon: -->
 We could try to get rid of the warning by adding the _setError_ function to useEffect's second parameter array:
 
 ```js
@@ -830,10 +808,9 @@ useEffect(() => {
 // highlight-end
 ```
 
-<!-- Tämä ratkaisu ei kuitenkaan toimi, ellei _notify_-funktiota ole määritelty [useCallback](https://reactjs.org/docs/hooks-reference.html#usecallback)-funktioon käärittynä. Jos näin ei tehdä, seurauksena on ikuinen luuppi, sillä aina kun komponentti _App_ renderöidään uudelleen notifikaation poistamisen jälkeen, syntyy <i>uusi versio</i> funktiosta _notify_ ja se taas aiheuttaa efektifunktion uudelleensuorituksen ja taas uuden notifikaation... -->
 However, this solution does not work if the _notify_ function is not wrapped to a [useCallback](https://reactjs.org/docs/hooks-reference.html#usecallback) function.  If it's not, this results in an endless loop. When the _App_ component is rerendered after a notification is removed, a <i>new version</i> of _notify_ gets created which causes the effect function to be executed, which causes a new notification, and so on, and so on...
 
-The current code of the application can be found on [Github](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-5) branch <i>part8-5</i>.
+The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-5) branch <i>part8-5</i>.
 
 ### Apollo Client and the applications state
 
@@ -880,16 +857,13 @@ In case of problems when making queries or mutations, check from the developer c
 
 #### 8.11: Authors birth year
 
-
 Implement a possibility to set authors birth year. You can create a new view for setting the birth year, or place it on the Authors view: 
 
 ![](../../images/8/20.png)
 
-
 Make sure that the Authors view is kept up to date after setting a birth year. 
 
 #### 8.12: Authors birth year advanced
-
 
 Change the birth year form so that a birth year can be set only for an existing author. Use [select tag](https://reactjs.org/docs/forms.html#the-select-tag), [react select](https://github.com/JedWatson/react-select), or some other mechanism. 
 

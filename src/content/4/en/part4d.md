@@ -41,12 +41,12 @@ const loginRouter = require('express').Router()
 const User = require('../models/user')
 
 loginRouter.post('/', async (request, response) => {
-  const body = request.body
+  const { username, password } = request.body
 
-  const user = await User.findOne({ username: body.username })
+  const user = await User.findOne({ username })
   const passwordCorrect = user === null
     ? false
-    : await bcrypt.compare(body.password, user.passwordHash)
+    : await bcrypt.compare(password, user.passwordHash)
 
   if (!(user && passwordCorrect)) {
     return response.status(401).json({
@@ -259,7 +259,7 @@ const errorHandler = (error, request, response, next) => {
 }
 ```
 
-Current application code can be found on [Github](https://github.com/fullstack-hy/part3-notes-backend/tree/part4-9), branch <i>part4-9</i>.
+Current application code can be found on [Github](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-9), branch <i>part4-9</i>.
 
 If the application has multiple interfaces requiring identification, JWT's validation should be separated into its own middleware. Some existing library like [express-jwt](https://www.npmjs.com/package/express-jwt) could also be used. 
 
@@ -271,12 +271,12 @@ There are two solutions to the problem. Easier one is to limit the validity peri
 
 ```js
 loginRouter.post('/', async (request, response) => {
-  const body = request.body
+  const { username, password } = request.body
 
-  const user = await User.findOne({ username: body.username })
+  const user = await User.findOne({ username })
   const passwordCorrect = user === null
     ? false
-    : await bcrypt.compare(body.password, user.passwordHash)
+    : await bcrypt.compare(password, user.passwordHash)
 
   if (!(user && passwordCorrect)) {
     return response.status(401).json({

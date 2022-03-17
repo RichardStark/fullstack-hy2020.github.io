@@ -11,10 +11,10 @@ Laajennetaan sovellusta käyttäjänhallinnalla. Siirrytään kuitenkin ensin k�
 
 ### Mongoose ja Apollo
 
-Otetaan käyttöön mongoose ja mongoose-unique-validator:
+Otetaan käyttöön mongoose:
 
 ```bash
-npm install mongoose mongoose-unique-validator
+npm install mongoose
 ```
 
 Tehdään osien [3](/osa3/tietojen_tallettaminen_mongo_db_tietokantaan) ja [4](/osa4/sovelluksen_rakenne_ja_testauksen_alkeet) tapaa imitoiden.
@@ -23,13 +23,11 @@ Henkilön skeema on määritelty seuraavasti:
 
 ```js
 const mongoose = require('mongoose')
-const uniqueValidator = require('mongoose-unique-validator')
 
 const schema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
     minlength: 5
   },
   phone: {
@@ -48,7 +46,6 @@ const schema = new mongoose.Schema({
   },
 })
 
-schema.plugin(uniqueValidator)
 module.exports = mongoose.model('Person', schema)
 ```
 
@@ -61,7 +58,7 @@ const { ApolloServer, UserInputError, gql } = require('apollo-server')
 const mongoose = require('mongoose')
 const Person = require('./models/person')
 
-const MONGODB_URI = 'mongodb+srv://fullstack:halfstack@cluster0-ostce.mongodb.net/graphql?retryWrites=true'
+const MONGODB_URI = 'mongodb+srv://databaseurlhere'
 
 console.log('connecting to', MONGODB_URI)
 
@@ -79,23 +76,23 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    personCount: () => Person.collection.countDocuments(),
-    allPersons: (root, args) => {
+    personCount: async () => Person.collection.countDocuments(),
+    allPersons: async (root, args) => {
       // filters missing
       return Person.find({})
     },
-    findPerson: (root, args) => Person.findOne({ name: args.name })
+    findPerson: async (root, args) => Person.findOne({ name: args.name }),
   },
   Person: {
     address: (root) => {
       return {
         street: root.street,
-        city: root.city
+        city: root.city,
       }
-    }
+    },
   },
   Mutation: {
-    addPerson: (root, args) => {
+    addPerson: async (root, args) => {
       const person = new Person({ ...args })
       return person.save()
     },
@@ -103,8 +100,8 @@ const resolvers = {
       const person = await Person.findOne({ name: args.name })
       person.phone = args.phone
       return person.save()
-    }
-  }
+    },
+  },
 }
 ```
 
@@ -116,7 +113,7 @@ Toinen huomionarvoinen seikka on se, että resolverifunktiot palauttavat nyt <i>
 Eli esimerkiksi jos seuraava resolverifunktio suoritetaan,
 
 ```js
-allPersons: (root, args) => {
+allPersons: async (root, args) => {
   return Person.find({})
 },
 ```
@@ -134,7 +131,7 @@ Täydennetään vielä resolveri _allPersons_ ottamaan huomioon optionaalinen fi
 ```js
 Query: {
   // ..
-  allPersons: (root, args) => {
+  allPersons: async (root, args) => {
     if (!args.phone) {
       return Person.find({})
     }
@@ -192,8 +189,7 @@ Mutation: {
 }
 ```
 
-Backendin koodi on kokonaisuudessaan [githubissa](https://github.com/fullstack-hy/graphql-phonebook-backend/tree/part8-4), branchissa <i>part8-4</i>.
-
+Backendin koodi on kokonaisuudessaan [GitHubissa](https://github.com/fullstack-hy2020/graphql-phonebook-backend/tree/part8-4), branchissa <i>part8-4</i>.
 
 ### Käyttäjä ja kirjautuminen
 
@@ -203,13 +199,11 @@ Käyttäjän skeema seuraavassa:
 
 ```js
 const mongoose = require('mongoose')
-const uniqueValidator = require('mongoose-unique-validator')
 
 const schema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
-    unique: true,
     minlength: 3
   },
   friends: [
@@ -220,7 +214,6 @@ const schema = new mongoose.Schema({
   ],
 })
 
-schema.plugin(uniqueValidator)
 module.exports = mongoose.model('User', schema)
 ```
 
@@ -275,7 +268,7 @@ const JWT_SECRET = 'NEED_HERE_A_SECRET_KEY'
 
 Mutation: {
   // ..
-  createUser: (root, args) => {
+  createUser: async (root, args) => {
     const user = new User({ username: args.username })
 
     return user.save()
@@ -304,9 +297,9 @@ Mutation: {
 
 Käyttäjän luova mutaatio on suoraviivainen. Kirjautumisesta vastaava mutaatio tarkastaa onko käyttäjätunnus/salasana-pari validi ja jos on, palautetaan [osasta 4](/osa4/token_perustainen_kirjautuminen) tuttu jwt-token.
 
-Aivan kuten REST:in tapauksessa myös nyt ideana on, että kirjautunut käyttäjä liittää kirjautumisen yhteydessä saamansa tokenin kaikkiin pyyntöihinsä. REST:in tapaan token liitetään GraphQL-pyyntöihin headerin <i>Authorization</i> avulla. GraphQL-playgroundissa headerin liittäminen pyyntöön tapahtuu seuraavasti
+Aivan kuten REST:in tapauksessa myös nyt ideana on, että kirjautunut käyttäjä liittää kirjautumisen yhteydessä saamansa tokenin kaikkiin pyyntöihinsä. REST:in tapaan token liitetään GraphQL-pyyntöihin headerin <i>Authorization</i> avulla. Apollo Explorerissa headerin liittäminen pyyntöön tapahtuu seuraavasti
 
-![](../../images/8/24.png)
+![](../../images/8/24x.png)
 
 Laajennetaan sitten backendin olion _server_ määrittelyä lisäämällä konstruktorikutsuun kolmas parametri [context](https://www.apollographql.com/docs/apollo-server/data/data/#context-argument):
 
@@ -399,7 +392,7 @@ Mutaation toteuttava resolveri:
 ```js
   addAsFriend: async (root, args, { currentUser }) => {
     const nonFriendAlready = (person) => 
-      !currentUser.friends.map(f => f._id).includes(person._id)
+      !currentUser.friends.map(f => f._id.toString()).includes(person._id.toString())
 
     if (!currentUser) {
       throw new AuthenticationError("not authenticated")
@@ -443,8 +436,7 @@ query {
 }
 ```
 
-Backendin koodi on kokonaisuudessaan [githubissa](https://github.com/fullstack-hy/graphql-phonebook-backend/tree/part8-5), branchissa <i>part8-5</i>.
-
+Backendin koodi on kokonaisuudessaan [GitHubissa](https://github.com/fullstack-hy2020/graphql-phonebook-backend/tree/part8-5), branchissa <i>part8-5</i>.
 
 </div>
 
@@ -481,9 +473,23 @@ Seuraavien asioiden ei vielä tässä tehtävässä tarvitse toimia.
 - kirjojen kenttä _author_
 - mutaatio _editAuthor_
 
+**Huom**: siitä huolimatta että kirjailijan tiedot ovat nyt <i>oliona</i> kirjan sisällä, kirjan lisäämisen skeema kannattaa säilyttää samana, eli operaation parametrina annetaan kirjailijasta ainoastaan nimi:
+
+```js
+type Mutation {
+  addBook(
+    title: String!
+    author: String! // highlight-line
+    published: Int!
+    genres: [String!]!
+  ): Book!
+  editAuthor(name: String!, setBornTo: Int!): Author
+}
+```
+
 #### 8.14: Tietokanta, osa 2
 
-Täydennä sovellusta siten, että kaikki kyselyt (paitsi kyselyn _allBooks_ parametri _author_) sekä mutaatiot toimivat.
+Täydennä sovellusta siten, että kaikki kyselyt (kyselyn _allBooks_ parametrin _author_ toimintaansaattaminen on vapaaehtoinen lisätehtävä!) sekä mutaatiot toimivat.
 
 Saatat tässä tehtävässä hyötyä [tästä](https://docs.mongodb.com/manual/reference/operator/query/in/).
 
