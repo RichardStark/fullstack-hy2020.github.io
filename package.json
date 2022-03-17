@@ -29,7 +29,7 @@
     "gatsby-transformer-sharp": "^2.1.8",
     "html-react-parser": "^0.6.0",
     "i18next": "^19.7.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "node-sass": "^4.11.0",
     "prismjs": "^1.27.0",
     "prop-types": "^15.7.2",
