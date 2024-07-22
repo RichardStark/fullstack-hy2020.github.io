@@ -6,61 +6,55 @@ lang: zh
 ---
 <div class="content">
 
-<!-- Developing with React was notorious for requiring tools that were very difficult to configure. These days, getting started with React development is almost painless thanks to [create-react-app](https://github.com/facebookincubator/create-react-app). A better development workflow has probably never existed for browser-side JavaScript development.-->
-开发React一直以来都以配置非常困难而臭名昭著。如今，由于[create-react-app](https://github.com/facebookincubator/create-react-app)，开始React开发几乎可以说是无痛的。对于浏览器端JavaScript开发来说，可能从未有过更好的开发工作流程。
+<!-- In the early days, React was somewhat famous for being very difficult to configure the tools required for application development. To make the situation easier, [Create React App](https://github.com/facebookincubator/create-react-app) was developed, which eliminated configuration-related problems. [Vite](https://vitejs.dev/), which is also used in the course, has recently replaced Create React App in new applications. -->
+早期，React 因难以配置应用程序开发所需的工具而出名。为了简化这种情况，[Create React App](https://github.com/facebookincubator/create-react-app)应运而生，它消除了与配置相关的问题。本课程中也使用了 [Vite](https://vitejs.dev/)，它最近在新的应用程序中取代了 Create React App。
 
-<!-- We cannot rely on the black magic of create-react-app forever and it's time for us to take a look under the hood. One of the key players in making React applications functional is a tool called [webpack](https://webpack.js.org/).-->
-我们不能永远依赖create-react-app的黑魔法，是时候让我们看看引擎盖下面的情况了。使React应用程序可以正常工作的关键工具之一是[webpack](https://webpack.js.org/)。
+Both Vite and Create React App use <i>bundlers</i> to do the actual work. We will now familiarize ourselves with the bundler called [Webpack](https://webpack.js.org/) used by Create React App. Webpack was by far the most popular bundler for years. Recently, however, there have been several new generation bundlers such as [esbuild](https://esbuild.github.io/) used by Vite, which are significantly faster and easier to use than Webpack. However, e.g. esbuild still lacks some useful features (such as hot reload of the code in the browser), so next we will get to know the old ruler of bundlers, Webpack.
+Vite 和 Create React App 都使用<i>bundlers</i>(捆绑) 来完成实际工作。现在，我们将熟悉 Create React App 使用的名为 [Webpack](https://webpack.js.org/) 的捆绑程序。多年来，Webpack 一直是最流行的捆绑程序。不过，最近出现了几种新一代捆绑程序，如 Vite 使用的 [esbuild](https://esbuild.github.io/) ，它们比 Webpack 快得多，也更容易使用。不过，esbuild 等捆绑程序仍然缺乏一些有用的功能（如在浏览器中热重载代码），因此接下来我们将了解一下老牌捆绑程序统治者 Webpack。
 
 ### Bundling
 
 <!-- We have implemented our applications by dividing our code into separate modules that have been <i>imported</i> to places that require them. Even though ES6 modules are defined in the ECMAScript standard, the older browsers do not know how to handle code that is divided into modules.-->
 我们通过将代码分割成单独的模块来实现我们的应用程序，这些模块被<i>导入</i>到需要它们的地方。尽管ES6模块在ECMAScript标准中定义，但较旧的浏览器不知道如何处理被分割成模块的代码。
 
-<!-- For this reason, code that is divided into modules must be <i>bundled</i> for browsers, meaning that all of the source code files are transformed into a single file that contains all of the application code. When we deployed our React frontend to production in [part 3](/en/part3/deploying_app_to_internet), we performed the bundling of our application with the _npm run build_ command. Under the hood, the npm script bundles the source code using webpack, which produces the following collection of files in the <i>build</i> directory:-->
-因此，必须为浏览器将分割成模块的代码<i>打包</i>，这意味着所有源代码文件都被转换成一个包含所有应用程序代码的单个文件。当我们在[第3章节](/en/part3/deploying_app_to_internet)将React前端部署到生产环境时，我们使用_npm run build_命令对应用程序进行了打包。在幕后，npm脚本使用webpack对源代码进行了打包，在<i>build</i>目录中生成了以下文件集：
+<!-- For this reason, code that is divided into modules must be <i>bundled</i> for browsers, meaning that all of the source code files are transformed into a single file that contains all of the application code. When we deployed our React frontend to production in [part 3](/en/part3/deploying_app_to_internet), we performed the bundling of our application with the _npm run build_ command. Under the hood, the npm script bundles the source code, and this produces the following collection of files in the <i>dist</i> directory:-->
+因此，必须为浏览器将分割成模块的代码<i>打包</i>，这意味着所有源代码文件都被转换成一个包含所有应用程序代码的单个文件。当我们在[第3章节](/en/part3/deploying_app_to_internet)将React前端部署到生产环境时，我们使用_npm run build_命令对应用程序进行了打包。在幕后，npm脚本对源代码进行了打包，在<i>dist</i>目录中生成了以下文件集：
 
 <pre>
-.
-├── asset-manifest.json
-├── favicon.ico
+├── assets
+│   ├── index-d526a0c5.css
+│   ├── index-e92ae01e.js
+│   └── react-35ef61ed.svg
 ├── index.html
-├── logo192.png
-├── logo512.png
-├── manifest.json
-├── robots.txt
-└── static
-    ├── css
-    │   ├── main.1becb9f2.css
-    │   └── main.1becb9f2.css.map
-    └── js
-        ├── main.88d3369d.js
-        ├── main.88d3369d.js.LICENSE.txt
-        └── main.88d3369d.js.map
+└── vite.svg
 </pre>
 
-<!-- The <i>index.html</i> file located at the root of the build directory is the "main file" of the application which loads the bundled JavaScript file with a <i>script</i> tag:-->
-<i>index.html</i> 文件位于构建目录的根目录下，是应用程序的“主文件”，它使用<i>script</i>标签加载打包的JavaScript文件：
+<!-- The <i>index.html</i> file located at the root of the dist directory is the "main file" of the application which loads the bundled JavaScript file with a <i>script</i> tag:-->
+<i>index.html</i> 文件位于dist目录的根目录下，是应用程序的“主文件”，它使用<i>script</i>标签加载打包的JavaScript文件：
 
 ```html
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8"/>
-    <title>React App</title>
-    <script defer="defer" src="/static/js/main.88d3369d.js"></script>
-    <link href="/static/css/main.1becb9f2.css" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+    <script type="module" crossorigin src="/assets/index-e92ae01e.js"></script>
+    <link rel="stylesheet" href="/assets/index-d526a0c5.css">
   </head>
+  <body>
     <div id="root"></div>
+    
   </body>
 </html>
 ```
 
-<!-- As we can see from the example application that was created with create-react-app, the build script also bundles the application's CSS files into a single <i>/static/css/main.1becb9f2.css</i> file.-->
-正如我们从使用`create-react-app`创建的示例应用程序中所看到的，构建脚本还将应用程序的CSS文件打包到单个<i>/static/css/main.1becb9f2.css</i>文件中。
+<!-- As we can see from the example application that was created with Vite, the build script also bundles the application's CSS files into a single <i>/assets/index-d526a0c5.css</i> file.-->
+正如我们从使用`Vite`创建的示例应用程序中所看到的，构建脚本还将应用程序的CSS文件打包到单个<i>/assets/index-d526a0c5.css</i>文件中。
 
-<!-- In practice, bundling is done so that we define an entry point for the application, which typically is the <i>index.js</i> file. When webpack bundles the code, it includes all of the code that the entry point imports, the code that its imports import, and so on.-->
-在实践中，将代码捆绑在一起的目的是为了定义应用程序的入口点，这通常是<i>index.js</i>文件。当webpack捆绑代码时，它将包括入口点所导入的所有代码，以及它导入的代码所导入的代码，依此类推。
+<!-- In practice, bundling is done so that we define an entry point for the application, which typically is the <i>index.js</i> file. When webpack bundles the code, it includes not only the code from the entry point but also the code that is imported by the entry point, as well as the code imported by its import statements, and so on.-->
+在实践中，将代码捆绑在一起的目的是为了定义应用程序的入口点，这通常是<i>index.js</i>文件。webpack 在捆绑代码时，不仅包括入口点的代码，还包括入口点导入的代码，以及其导入语句导入的代码，等等。
 
 <!-- Since part of the imported files are packages like React, Redux, and Axios, the bundled JavaScript file will also contain the contents of each of these libraries.-->
 由于部分导入的文件是诸如React、Redux和Axios等包，因此打包的JavaScript文件也将包含每个库的内容。
@@ -68,7 +62,7 @@ lang: zh
 <!-- > The old way of dividing the application's code into multiple files was based on the fact that the <i>index.html</i> file loaded all of the separate JavaScript files of the application with the help of script tags. This resulted in  decreased performance, since the loading of each separate file results in some overhead. For this reason, these days the preferred method is to bundle the code into a single file.-->
 > 老的分割应用程序代码到多个文件的方式是基于<i>index.html</i>文件通过使用脚本标签来加载应用程序的所有单独的JavaScript文件。由于每个单独文件的加载都会带来一定的开销，这导致性能下降。因此，如今的首选方法是将代码打包到一个单独的文件中。
 
-<!-- Next, we will create a suitable webpack configuration for a React application by hand from scratch.-->
+<!-- Next, we will create a webpack configuration by hand, suitable for a new React application.-->
 接下来，我们将从零开始手动为 React 应用程序创建一个合适的 webpack 配置。
 
 <!-- Let's create a new directory for the project with the following subdirectories (<i>build</i> and <i>src</i>) and files:-->
@@ -807,8 +801,8 @@ function h(){if(!d){var e=u(p);d=!0;for(var t=c.length;t;){for(s=c,c=[];++f<t;)s
 <!-- Our goal is to configure the application with webpack in such a way that, when used locally, the application uses the json-server available in port 3001 as its backend.-->
 我们的目标是使用webpack配置应用程序，使得本地使用时，应用程序使用端口3001上可用的json-server作为其后端。
 
-<!-- The bundled file will then be configured to use the backend available at the <https://obscure-harbor-49797.herokuapp.com/api/notes> url.-->
- 然后，捆绑的文件将被配置为使用<https://obscure-harbor-49797.herokuapp.com/api/notes>网址上的后端。
+<!-- The bundled file will then be configured to use the backend available at the <https://notes2023.fly.dev/api/notes> URL.-->
+ 然后，捆绑的文件将被配置为使用<https://notes2023.fly.dev/api/notes>网址上的后端。
 
 <!-- We will install <i>axios</i>, start the json-server, and then make the necessary changes to the application. For the sake of changing things up, we will fetch the notes from the backend with our [custom hook](/en/part7/custom_hooks) called _useNotes_:-->
 我们将安装<i>axios</i>，启动 json-server，然后对应用程序进行必要的更改。为了改变情况，我们将使用我们的[自定义钩子](/en/part7/custom_hooks)称为_useNotes_从后端获取笔记：
@@ -996,16 +990,3 @@ if (!window.Promise) {
 
 <!-- The browser compatibility of different APIs can be checked by visiting [https://caniuse.com](https://caniuse.com) or [Mozilla's website](https://developer.mozilla.org/en-US/).-->
 可以通过访问[https://caniuse.com](https://caniuse.com) 或 [Mozilla的网站](https://developer.mozilla.org/en-US/) 来检查不同API的浏览器兼容性。
-
-### Eject
-
-<!-- The create-react-app tool uses webpack behind the scenes. If the default configuration is not enough, it is possible to [eject](https://create-react-app.dev/docs/available-scripts/#npm-run-eject) the project which will get rid of all of the black magic, and the default configuration files will be stored in the <i>config</i> directory and in a modified <i>package.json</i> file.-->
-create-react-app 工具在幕后使用 webpack。如果默认配置不够，可以[弹出](https://create-react-app.dev/docs/available-scripts/#npm-run-eject)项目，这将摆脱所有的黑魔法，默认配置文件将存储在<i>config</i>目录和修改后的<i>package.json</i>文件中。
-
-<!-- If you eject an application created with create-react-app, there is no return and all of the configurations will have to be maintained manually. The default configuration is not trivial, and instead of ejecting from a create-react-app application, a better alternative may be to write your own webpack configuration from the get-go.-->
-如果你退出一个使用`create-react-app`创建的应用程序，就没有回头路了，所有的配置都必须手动维护。默认配置并不简单，与其从`create-react-app`应用程序中退出，一个更好的选择可能是从一开始就编写自己的`webpack`配置。
-
-<!-- Going through and reading the configuration files of an ejected application is still recommended and extremely educational.-->
-通过阅读已卸载应用程序的配置文件仍然是值得推荐的，并且非常有教育意义。
-
-</div>

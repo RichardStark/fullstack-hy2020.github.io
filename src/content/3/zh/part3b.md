@@ -89,8 +89,11 @@ const cors = require('cors')
 app.use(cors())
 ```
 
-<!-- And the frontend works! However, the functionality for changing the importance of notes has not yet been implemented to the backend.-->
- 前端就可以工作了!然而，改变笔记重要性的功能还没有在后端实现。
+<!-- **Note:** When you are enabling cors, you should think about how you want to configure it. In the case of our application, since the backend is not expected to be visible to the public in the production environment, it may make more sense to only enable cors from a specific origin (e.g. the front end).  -->
+**注：** 启用 cors 时，应考虑如何配置。就我们的应用程序而言，由于后端在生产环境中不会对公众可见，因此只从特定来源（如前端）启用 cors 可能更有意义。
+
+<!-- Now most of the features in the frontend work! The functionality for changing the importance of notes has not yet been implemented on the backend so naturally that does not yet work in the frontend. We shall fix that later. -->
+现在，前端的大部分功能都能正常工作了！更改备注重要性的功能尚未在后台实现，因此自然也无法在前台使用。我们稍后会解决这个问题。
 
 <!-- You can read more about CORS from [Mozilla's page](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).-->
 你可以在[Mozilla 的页面](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)上了解更多关于 CORS 的信息。
@@ -126,20 +129,15 @@ React应用现在在浏览器中运行，从运行在localhost:3001上的node/ex
 <!-- There are also some other free options hosting options that work well for this course, at least for all parts other than part 11 (CI/CD) that might have one tricky exercise for other platforms.-->
 也有一些其他免费的托管选项可以很好地用于本课程，至少除了第11部分（CI/CD）可能会有一个棘手的练习外，其他部分都可以。
 
-<!-- Some course participants have also used the following-->
-to describe their experiences:
+<!-- Some course participants have also used the following services: -->
+一些课程参与者还使用了以下服务：
 
-一些课程参与者也用了下面的话来描述他们的经历：
-
-<!-- - [Railway](https://railway.app/)-->
-- [铁路](https://railway.app/)
 <!-- - [Cyclic](https://www.cyclic.sh/)-->
-# Cyclic
-[循环](https://www.cyclic.sh/)
+[Cyclic](https://www.cyclic.sh/)
 <!-- - [Replit](https://replit.com)-->
-- [Replit](https://replit.com)：[Replit](https://replit.com)
+- [Replit](https://replit.com)
 <!-- - [CodeSandBox](https://codesandbox.io)-->
-- [CodeSandBox](https://codesandbox.io)：代码沙箱
+- [CodeSandBox](https://codesandbox.io)
 
 <!-- If you know some other good and easy-to-use services for hosting NodeJS, please let us know!-->
 如果你知道其他一些好用且易于使用的NodeJS托管服务，请告诉我们！
@@ -159,7 +157,8 @@ app.listen(PORT, () => {
 
 #### Fly.io
 
-<i>Note that you may need to give your credit card number to Fly.io even if you are using only the free tier!</i> There has been actually conflicting reports about this, it is known for a fact that some of the students in this course are using Fly.io without entering the credit card info. At the moment [Render](https://render.com/) can be used without a credit card.
+<!-- <i>Note that you may need to give your credit card number to Fly.io even if you are using only the free tier!</i> There has been actually conflicting reports about this, it is known for a fact that some of the students in this course are using Fly.io without entering the credit card info. At the moment [Render](https://render.com/) can be used without a credit card. -->
+<i>请注意，即使您只使用免费层，您也可能需要向 Fly.io 提供您的信用卡号！</i>关于这一点的报道实际上是相互矛盾的，本课程的一些学生在使用 Fly.io 时没有输入信用卡信息。目前，[render](https://render.com/) 无需信用卡即可使用。
 
 <!-- By default, everyone gets two free virtual machines that can be used for running two apps at the same time.-->
 默认情况下，每个人都可以免费获得两台虚拟机，可以同时运行两个应用程序。
@@ -175,12 +174,6 @@ app.listen(PORT, () => {
 ```bash
 fly auth login
 ```
-<!-- Create Heroku account in https://devcenter.heroku.com/-->
-在 https://devcenter.heroku.com/ ，创建Heroku账户
-<!-- Install Heroku package using the command: npm install -g heroku-->
- 使用命令安装Heroku包：npm install -g heroku
-<!-- Create a Heroku application with the command <i>heroku create</i>, commit your code to the repository and move it to Heroku with command <i>git push heroku main</i>.-->
- 用命令<i>heroku create</i>创建一个Heroku应用，将你的代码提交到版本库，并用命令<i>git push heroku main</i>将其移到Heroku。
 
 <!-- *Note* if the command _fly_ does not work on your machine, you can try the longer version _flyctl_. Eg. on MacOS, both forms of the command work.-->
 如果你的机器上的 _fly_ 命令不起作用，你可以尝试更长的版本 _flyctl_。例如，在MacOS上，两种形式的命令都能正常工作。
@@ -191,28 +184,27 @@ fly auth login
 在应用程序的根目录中运行以下命令可以初始化应用程序：
 
 ```bash
-fly launch
+fly launch --no-deploy
 ```
 
 <!-- Give the app a name or let Fly.io auto-generate one. Pick a region where the app will be run. Do not create a Postgres database for the app and do not create an Upstash Redis database, since these are not needed.-->
 给应用程序取一个名字，或者让Fly.io自动生成一个。选择一个运行应用程序的区域。不要为应用程序创建Postgres数据库，也不要创建Upstash Redis数据库，因为这些都不需要。
 
-<!-- The frontend also works with the backend on Heroku. You can check this by changing the backend's address on the frontend to be the backend's address in Heroku instead of <i>http://localhost:3001</i>.-->
- 前端也可以和Heroku的后端一起工作。你可以通过把前端的后端地址改为Heroku中的后端地址，而不是<i>http://localhost:3001</i>来检查。
-
 <!-- Fly.io creates a file <i>fly.toml</i> in the root of your app where the app is configured. To get the app up and running we <i>might</i> need to do a small addition to the part [env] of the configuration:-->
-飞行。io 在您的应用程序的根目录中创建一个文件<i>fly.toml</i>，其中配置了应用程序。 为了让应用程序正常运行，我们<i>可能</i>需要在配置的[env]部分做一些小的添加：
+Fly.io 在您的应用程序的根目录中创建一个文件<i>fly.toml</i>，其中配置了应用程序。 为了让应用程序正常运行，我们<i>可能</i>需要在配置的[env]部分做一些小的添加：
 
 ```bash
+[build]
+
 [env]
-  PORT = "8080" # add this
+  PORT = "3000" # add this
 
-[experimental]
-  auto_rollback = true
-
-[[services]]
-  http_checks = []
-  internal_port = 8080
+[http_service]
+  internal_port = 3000 # ensure that this is same as PORT
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
   processes = ["app"]
 ```
 
@@ -232,18 +224,14 @@ fly deploy
 如果一切顺利，应用程序现在应该已经启动并运行了。你可以用 `python app.py` 命令在浏览器中打开它。
 
 ```bash
-fly open
-```
-
-<!-- After the initial setup, when the app code has been updated, it can be deployed to production with the command-->
-在初始设置之后，当应用程序代码更新后，可以使用命令部署到生产环境
-
-```bash
-fly deploy
+fly apps open
 ```
 
 <!-- A particularly important command is _fly logs_. This command can be used to view server logs. It is best to keep logs always visible!-->
-_飞行日志_ 是一个特别重要的命令。这个命令可以用来查看服务器日志。最好总是保持日志可见！
+_fly logs_ 是一个特别重要的命令。这个命令可以用来查看服务器日志。最好总是保持日志可见！
+
+<!-- **Note:** Fly may create 2 machines for your app, if it does then the state of the data in your app will be inconsistent between requests, i.e. you would have two machines each with its own notes variable, you could POST to one machine then your next GET could go to another machine. You can check the number of machines by using the command "$ fly scale show", if the COUNT is greater than 1 then you can enforce it to be 1 with the command "$ fly scale count 1". The machine count can also be checked on the dashboard. -->
+**注意：** Fly 可能会为您的应用程序创建 2 台机器，如果创建了 2 台机器，您应用程序中的数据状态在不同请求之间就会不一致，也就是说，您会有 2 台机器，每台机器都有自己的备注变量，您可以 POST 到一台机器，然后下一次 GET 可能会转到另一台机器。你可以使用“$ fly scale show ”命令来检查机器数量，如果 COUNT 大于 1，你可以使用“$ fly scale count 1 ”命令将其强制为 1。也可以在 dashboard 上检查机器数量。
 
 <!-- **Note:** In some cases (the cause is so far unknown) running Fly.io commands especially on Windows WSL has caused problems. If the following command just hangs-->
 and does not produce any output, please try running it again with `--no-progress` added.
@@ -258,19 +246,7 @@ flyctl ping -o personal
 如果你的电脑出现无法连接Fly.io的情况，[这里](https://github.com/fullstack-hy2020/misc/blob/master/fly_io_problem.md)描述了可以尝试的一种方法。
 
 <!-- If the output of the below command looks like this:-->
-`ls -l`
-
-total 8
-drwxr-xr-x 2 root root 4096 May 15 10:10 test
-
 如果以下命令的输出看起来像这样：
-`ls -l`
-
-total 8
-drwxr-xr-x 2 root root 4096 May 15 10:10 test
-
-总共 8 
-drwxr-xr-x 2 root root 4096 May 15 10:10 test
 
 ```bash
 $ flyctl ping -o personal
@@ -282,6 +258,13 @@ $ flyctl ping -o personal
 
 <!-- then there are no connection problems!-->
 如果没有连接问题，那就太好了！
+
+<!-- Whenever you make changes to the application, you can take the new version to production with a command -->
+每次对应用程序进行更改，都可以使用如下命令将新版本带入生产环境
+
+```bash
+fly deploy
+```
 
 #### Render
 
@@ -342,14 +325,14 @@ app.listen(PORT, () => {
 <!-- When the application is deployed, we must create a [production build](https://reactjs.org/docs/optimizing-performance.html#use-the-production-build) or a version of the application which is optimized for production.-->
 当应用程序部署时，我们必须创建[生产构建](https://reactjs.org/docs/optimizing-performance.html#use-the-production-build)或优化用于生产的应用程序的版本。
 
-<!-- A production build of applications created with <i>create-react-app</i> can be created with the command [npm run build](https://github.com/facebookincubator/create-react-app#npm-run-build-or-yarn-build).-->
-使用<i>create-react-app</i>创建的应用程序的生产构建可以使用命令[npm run build](https://github.com/facebookincubator/create-react-app#npm-run-build-or-yarn-build)创建。
+<!-- A production build of applications created with <i>create-react-app</i> can be created with the command [npm run build](https://vitejs.dev/guide/build.html).-->
+使用<i>create-react-app</i>创建的应用程序的生产构建可以使用命令[npm run build](https://vitejs.dev/guide/build.html)创建。
 
-<!-- **NOTE:** at the time of writing (20th January 2022) create-react-app had a bug that causes the following error _TypeError: MiniCssExtractPlugin is not a constructor_-->
- **注意：**在撰写本文时（2022年1月20日）create-react-app有一个错误，导致以下错误 _TypeError: MiniCssExtractPlugin不是一个构造函数_ 。
+<!-- Let's run this command from the <i>root of the notes frontend project</i> that we developed in [Part 2](/en/part2). -->
+让我们在 [第 2 章节](/en/part2) 中开发的<i>笔记前端项目的根目录</i>中运行这条命令。
 
-<!-- This creates a directory called <i>build</i> (which contains the only HTML file of our application, <i>index.html</i> ) which contains the directory <i>static</i>. [Minified](<https://en.wikipedia.org/wiki/Minification_(programming)>) version of our application's JavaScript code will be generated in the <i>static</i> directory. Even though the application code is in multiple files, all of the JavaScript will be minified into one file. All of the code from all of the application's dependencies will also be minified into this single file.-->
-这将创建一个叫做<i>build</i>的目录（其中包含我们应用程序的唯一的HTML文件<i>index.html</i>），其中包含目录<i>static</i>。我们应用程序的JavaScript代码的[最小化](<https://en.wikipedia.org/wiki/Minification_(programming)>)版本将被生成在<i>static</i>目录中。尽管应用程序代码分布在多个文件中，但所有的JavaScript代码都将被最小化到一个文件中。所有来自应用程序依赖的代码也将被最小化到这个单一文件中。
+<!-- This creates a directory called <i>dist</i> which contains the only HTML file of our application (<i>index.html</i>) and the directory <i>assets</i>. [Minified](<https://en.wikipedia.org/wiki/Minification_(programming)>) version of our application's JavaScript code will be generated in the <i>dist</i> directory. Even though the application code is in multiple files, all of the JavaScript will be minified into one file. All of the code from all of the application's dependencies will also be minified into this single file. -->
+这将创建一个叫做<i>dist</i>的目录（其中包含我们应用程序的唯一的HTML文件<i>index.html</i>）和目录<i>assets</i>。我们应用程序的JavaScript代码的[最小化](<https://en.wikipedia.org/wiki/Minification_(programming)>)版本将被生成在<i>dist</i>目录中。尽管应用程序代码分布在多个文件中，但所有的JavaScript代码都将被最小化到一个文件中。所有来自应用程序依赖的代码也将被最小化到这个单一文件中。
 
 <!-- The minified code is not very readable. The beginning of the code looks like this:-->
 最小化的代码不是很容易阅读。代码的开头看起来像这样：
@@ -360,14 +343,14 @@ app.listen(PORT, () => {
 
 ### Serving static files from the backend
 
-<!-- One option for deploying the frontend is to copy the production build (the <i>build</i> directory) to the root of the backend repository and configure the backend to show the frontend's <i>main page</i> (the file <i>build/index.html</i>) as its main page.-->
-一种部署前端的选项是将生产构建（<i>构建</i>目录）复制到后端仓库的根目录，并配置后端将前端的<i>主页</i>（文件<i>build/index.html</i>）显示为其主页。
+<!-- One option for deploying the frontend is to copy the production build (the <i>dist</i> directory) to the root of the backend repository and configure the backend to show the frontend's <i>main page</i> (the file <i>build/index.html</i>) as its main page.-->
+一种部署前端的选项是将生产构建（<i>dist</i>目录）复制到后端仓库的根目录，并配置后端将前端的<i>主页</i>（文件<i>build/index.html</i>）显示为其主页。
 
 <!-- We begin by copying the production build of the frontend to the root of the backend. With a Mac or Linux computer, the copying can be done from the frontend directory with the command-->
  我们首先把前端的生产构建复制到后端的根目录下。在Mac或Linux电脑上，复制可以在前端目录下用命令完成
 
 ```bash
-cp -r build ../backend
+cp -r dist ../backend
 ```
 
 <!-- If you are using a Windows computer, you may use either [copy](https://www.windows-commandline.com/windows-copy-command-syntax-examples/) or [xcopy](https://www.windows-commandline.com/xcopy-command-syntax-examples/) command instead. Otherwise, simply copy and paste.-->
@@ -382,12 +365,10 @@ cp -r build ../backend
 要使express展示<i>静态内容</i>，页面<i>index.html</i>和它获取的JavaScript等，我们需要express内置的中间件[static](http://expressjs.com/en/starter/static-files.html)。
 
 <!-- When we add the following amidst the declarations of middlewares-->
-,
-
 当我们在中间件声明中添加以下内容时，
 
 ```js
-app.use(express.static('build'))
+app.use(express.static('dist'))
 ```
 
 <!-- whenever express gets an HTTP GET request it will first check if the <i>build</i> directory contains a file corresponding to the request's address. If a correct file is found, express will return it.-->
@@ -442,8 +423,6 @@ const getAll = () => {
 <!-- The file contains instructions to fetch a CSS stylesheet defining the styles of the application, and two <i>script</i> tags that instruct the browser to fetch the JavaScript code of the application - the actual React application.-->
 文件包含指令来获取一个定义应用程序样式的CSS样式表，以及两个<i>脚本</i>标记，指示浏览器获取应用程序的JavaScript代码 - 实际的React应用程序。
 
-文件包含指令来获取一个定义应用程序样式的CSS样式表，以及两个<i>脚本</i>标签，指示浏览器获取应用程序的JavaScript代码 - 实际的React应用程序。
-
 <!-- The React code fetches notes from the server address <http://localhost:3001/api/notes> and renders them to the screen. The communications between the server and the browser can be seen in the <i>Network</i> tab of the developer console:-->
 React 代码从服务器地址<http://localhost:3001/api/notes>获取笔记，并将它们渲染到屏幕上。服务器和浏览器之间的通信可以在开发者控制台的<i>网络</i>标签中看到：
 
@@ -462,6 +441,9 @@ React 代码从服务器地址<http://localhost:3001/api/notes>获取笔记，�
 <!-- After ensuring that the production version of the application works locally, commit the production build of the frontend to the backend repository, and push the code to GitHub again.-->
 确保应用程序的生产版本在本地正常运行后，将前端的生产构建提交到后端存储库，并将代码再次推送到GitHub。
 
+<!-- **NB** If you use Render, make sure the directory <i>dist</i> is not ignored by git on the backend. -->
+**注*** 如果使用 Render，请确保后端 git 不会忽略 <i>dist</i> 目录。
+
 <!-- If you are using Render a push to GitHub <i>might</i> be enough. If the automatic deployment does not work, select the "manual deploy" from the Render dashboard.-->
 如果你正在使用Render，推送到GitHub<i>可能</i>就足够了。如果自动部署不起作用，从Render仪表板中选择“手动部署”。
 
@@ -477,9 +459,13 @@ fly deploy
 <!-- The application works perfectly, except we haven''t added the functionality for changing the importance of a note to the backend yet.-->
 应用程序运行得很完美，只是我们还没有在后端添加改变笔记重要性的功能。
 
+<!-- <strong>NOTE:</strong> When using Fly.io, be aware that the _.dockerignore_ file in your project directory lists files not uploaded during deployment. The dist directory is included by default. To deploy this directory, remove its reference from the .dockerignore file, ensuring your app is get properly deployed. -->
+<strong>注意：</strong>使用 Fly.io 时，请注意项目目录中的 _.dockerignore_ 文件会列出部署过程中不会上传的文件。默认情况下包括 dist 目录。要部署这个目录，请从 .dockerignore 文件中移除它的引用，以确保你的应用程序能正确部署。
+
 ![screenshot of notes application](../../images/3/30new.png)
 
-<i>**NOTE:** changing of the importance DOES NOT work yet since the backend has no implementation for it yet.</i>
+<!-- <i>**NOTE:** changing of the importance DOES NOT work yet since the backend has no implementation for it yet.</i> -->
+<i>***注：** 更改重要度目前还不起作用，因为后台还没有实现该功能。
 
 <!-- Our application saves the notes to a variable. If the application crashes or is restarted, all of the data will disappear.-->
 我们的应用程序将笔记保存到一个变量中。如果应用程序崩溃或重新启动，所有的数据都会消失。
@@ -493,7 +479,7 @@ fly deploy
 ![diagram of react app on heroku with a database](../../images/3/102.png)
 
 <!-- The node/express-backend now resides in the Fly.io/Render server. When the root address is accessed, the browser loads and executes the React app that fetches the json-data from the Fly.io/Render server.-->
-现在节点/ express-backend位于Fly.io/Render服务器中。当访问根地址时，浏览器加载并执行从Fly.io/Render服务器获取json数据的React应用程序。
+现在 node/express-backend 位于 Fly.io/Render 服务器中。当访问根地址时，浏览器加载并执行从 Fly.io/Render 服务器获取 json 数据的 React 应用程序。
 
 ### Streamlining deploying of the frontend
 
@@ -520,8 +506,8 @@ fly deploy
 ##### Note for Windows users
 <!-- Note that the standard shell commands in `build:ui` do not natively work in Windows. Powershell in Windows works differently, in which case the script could be written as-->
 follows:
-
 注意，`build:ui` 中的标准shell命令不能在Windows中本地工作。Windows中的PowerShell工作方式不同，在这种情况下，脚本可以按照以下方式编写：
+
 ```json
 "build:ui": "@powershell Remove-Item -Recurse -Force build && cd ../frontend && npm run build && @powershell Copy-Item build -Recurse ../backend",
 ```
@@ -579,7 +565,7 @@ npm config set script-shell "C:\\Program Files\\git\\bin\\bash.exe"
 ### Proxy
 
 <!-- Changes on the frontend have caused it to no longer work in development mode (when started with command _npm start_), as the connection to the backend does not work.-->
- 前端的变化导致它在开发模式下不再工作（当用_npm start_命令启动时），因为与后端的连接不起作用。
+前端的变化导致它在开发模式下不再工作（当用_npm start_命令启动时），因为与后端的连接不起作用。
 
 ![Network dev tools showing a 404 on getting notes](../../images/3/32new.png)
 
@@ -591,25 +577,37 @@ const baseUrl = '/api/notes'
 ```
 
 <!-- Because in development mode the frontend is at the address <i>localhost:3000</i>, the requests to the backend go to the wrong address <i>localhost:3000/api/notes</i>. The backend is at <i>localhost:3001</i>.-->
- 因为在开发模式下，前端的地址是<i>localhost:3000</i>，对后端的请求会进入错误的地址<i>localhost:3000/api/notes</i>。后端是在<i>localhost:3001</i>。
+因为在开发模式下，前端的地址是<i>localhost:3000</i>，对后端的请求会进入错误的地址<i>localhost:3000/api/notes</i>。后端是在<i>localhost:3001</i>。
 
-<!-- If the project was created with create-react-app, this problem is easy to solve. It is enough to add the following declaration to the <i>package.json</i> file of the frontend repository.-->
-如果项目是使用create-react-app创建的，解决这个问题就很容易。只需在前端仓库的<i>package.json</i>文件中添加以下声明即可。
+<!-- If the project was created with Vite, this problem is easy to solve. It is enough to add the following declaration to the <i>vite.config.js</i> file of the frontend repository.-->
+如果项目是使用 Vite 创建的，解决这个问题就很容易。只需在前端仓库的<i>vite.config.js</i>文件中添加以下声明即可。
 
 ```bash
-{
-  "dependencies": {
-    // ...
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  // highlight-start
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    }
   },
-  "scripts": {
-    // ...
-  },
-  "proxy": "http://localhost:3001"  // highlight-line
-}
+  // highlight-end
+})
+
 ```
 
-<!-- After a restart, the React development environment will work as a [proxy](https://create-react-app.dev/docs/proxying-api-requests-in-development/). If the React code does an HTTP request to a server address at <i><http://localhost:3000></i> not managed by the React application itself (i.e. when requests are not about fetching the CSS or JavaScript of the application), the request will be redirected to the server at <i><http://localhost:3001></i>.-->
-重新启动后，React开发环境将作为[代理]（https://create-react-app.dev/docs/proxying-api-requests-in-development/）工作。如果React代码向未由React应用程序本身管理的<i> <http://localhost:3000> </i>服务器地址发出HTTP请求（即当请求不是关于获取应用程序的CSS或JavaScript时），则该请求将重定向到<i> <http://localhost:3001> </i>服务器。
+<!-- After a restart, the React development environment will work as a [proxy](https://vitejs.dev/config/server-options.html#server-proxy). If the React code does an HTTP request to a server address at <i><http://localhost:5173></i> not managed by the React application itself (i.e. when requests are not about fetching the CSS or JavaScript of the application), the request will be redirected to the server at <i><http://localhost:3001></i>.-->
+重新启动后，React开发环境将作为[代理]（https://vitejs.dev/config/server-options.html#server-proxy）工作。如果React代码向未由React应用程序本身管理的<i> <http://localhost:5173> </i>服务器地址发出HTTP请求（即当请求不是关于获取应用程序的CSS或JavaScript时），则该请求将重定向到<i> <http://localhost:3001> </i>服务器。
+
+<!-- Note that with the vite-configuration shown above, only requests that are made to paths starting with <i>/api</i>-are redirected to the server. -->
+请注意，在上述 vite 配置中，只有指向以 <i>/api</i> 开头的路径的请求才会重定向到服务器。
 
 <!-- Now the frontend is also fine, working with the server both in development- and production mode.-->
 现在前端也很好，无论是在开发模式还是生产模式下都能与服务器正常工作。

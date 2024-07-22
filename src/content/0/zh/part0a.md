@@ -576,6 +576,6 @@ lang: zh
 在教学内容的每一部分底部，都有一个链接 <em>提出对材料的修改</em>。您可以通过点击该链接编辑页面的源代码。
 
 <!-- There are also lots of links in the material for many kinds of background material. If you notice that a link is broken (that happens too often...), propose a change or ping us in Discord if you do not find a replacement for the broken link.-->
-也有很多扩展材料的链接。如果你发现链接已经失效（这种情况时长发生...），如果你找不到替换的链接，请提出修改或者在 Discord 上@我们。
+也有很多扩展材料的链接。如果你发现链接已经失效（这种情况时常发生...），如果你找不到替换的链接，请提出修改或者在 Discord 上@我们。
 
 </div>
